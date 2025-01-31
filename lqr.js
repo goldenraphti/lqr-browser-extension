@@ -157,18 +157,20 @@ const filterListEnglish = new Set([
   ["billionaires", "oligarchs"],
 ]);
 
-const treeWalker = document.createTreeWalker(
-  document.body,
-  NodeFilter.SHOW_TEXT,
-  null,
-  false
-);
+const listToUse = new Set([...filterListEnglish, ...filterListFrench]);
 
-let node;
-
-const useAdvancedReplaceText = false;
+const useAdvancedReplaceText = true;
 
 if (!useAdvancedReplaceText) {
+  const treeWalker = document.createTreeWalker(
+    document.body,
+    NodeFilter.SHOW_TEXT,
+    null,
+    false
+  );
+
+  let node;
+
   while ((node = treeWalker.nextNode())) {
     filterListFrench.forEach((bsWord) => {
       const stringToSearch = bsWord[0];
@@ -177,24 +179,43 @@ if (!useAdvancedReplaceText) {
     });
   }
 } else {
-  while ((node = treeWalker.nextNode())) {
-    filterListFrench.forEach((bsWord) => {
-      const stringToSearch = bsWord[0];
-      const regexToSearch = new RegExp(stringToSearch, "gi");
-      if (node.textContent.toLowerCase().includes(stringToSearch)) {
-        console.log("💗", stringToSearch, node, node.innerHTML);
-        if (!node.innerHTML) console.log("failing node", node, node.innerHTML);
-        const nodeHTMLArr = node.innerHTML?.split(" ");
-        if (!nodeHTMLArr) return;
-        const indexBeforeChange = nodeHTMLArr.indexOf(stringToSearch);
-        const before =
-          "<span style='color: red; text-decoration: line-through'>";
-        const middle = "</span><span style='color:green;'>";
-        const after = "</span>";
-        nodeHTMLArr[indexBeforeChange] =
-          before + stringToSearch + middle + bsWord[1] + after;
-        node.innerHTML = nodeHTMLArr.join(" ");
-      }
-    });
+  // Function to replace specific words with HTML
+  function replaceWordsWithHTML(htmlContent, wordsToReplace) {
+    // Iterate over each word to replace
+    for (const wordReplacement of wordsToReplace) {
+      // Create a regular expression to find the word
+      const regex = new RegExp(`\\b${wordReplacement[0]}\\b`, "gi");
+      // Replace the word with the replacement HTML
+      htmlContent = htmlContent.replace(
+        regex,
+        `<span style='color: red; text-decoration: line-through'>${wordReplacement[0]}</span><span style='color:green;'>${wordReplacement[1]}</span>`
+      );
+    }
+    return htmlContent;
   }
+
+  document.body.innerHTML = replaceWordsWithHTML(
+    document.body.innerHTML,
+    listToUse
+  );
 }
+
+// while ((node = treeWalker.nextNode())) {
+//   filterListFrench.forEach((bsWord) => {
+//     const stringToSearch = bsWord[0];
+//     const regexToSearch = new RegExp(stringToSearch, "gi");
+//     if (node.textContent.toLowerCase().includes(stringToSearch)) {
+//       console.log("💗", stringToSearch, node, node.innerHTML);
+//       if (!node.innerHTML) console.log("failing node", node, node.innerHTML);
+//       const nodeHTMLArr = node.innerHTML?.split(" ");
+//       if (!nodeHTMLArr) return;
+//       const indexBeforeChange = nodeHTMLArr.indexOf(stringToSearch);
+//       const before = "<span style='color: red; text-decoration: line-through'>";
+//       const middle = "</span><span style='color:green;'>";
+//       const after = "</span>";
+//       nodeHTMLArr[indexBeforeChange] =
+//         before + stringToSearch + middle + bsWord[1] + after;
+//       node.innerHTML = nodeHTMLArr.join(" ");
+//     }
+//   });
+// }
