@@ -1,0 +1,19 @@
+{
+  "manifest_version": 2,
+  "name": "LQR",
+  "version": "1.0",
+
+  "description": "Removes all 'Lingua Qintae Respublicae' bullshit language from the webpages you browse.",
+  "homepage_url": "https://github.com/goldenraphti/lqr-extension",
+  "icons": {
+    "48": "icons/lqr-48.png",
+    "96": "icons/lqr-96.png"
+  },
+  "permissions": ["activeTab"],
+  "content_scripts": [
+    {
+      "matches": ["*://*/*"],
+      "js": ["lqr.js"]
+    }
+  ]
+}
